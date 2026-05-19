@@ -41,7 +41,7 @@ export default function OrderDetailScreen({ route, navigation }: any) {
         tax_amount: order.tax_amount, total: order.total,
       }, invoiceItems);
       Alert.alert('Invoice Created', `Invoice ${inv.invoice_number} created!`, [
-        { text: 'View Invoice', onPress: () => navigation.navigate('Invoices', { screen: 'InvoiceDetail', params: { id: inv.id } }) },
+        { text: 'View Invoice', onPress: () => navigation.navigate('More', { screen: 'Invoices', params: { screen: 'InvoiceDetail', params: { id: inv.id } } }) },
         { text: 'OK' },
       ]);
     } catch (e: any) { Alert.alert('Error', e.message); }

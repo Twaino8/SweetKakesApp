@@ -43,7 +43,7 @@ export default function QuotationDetailScreen({ route, navigation }: any) {
       }, invoiceItems);
       await updateQuotationStatus(id, 'accepted');
       Alert.alert('Invoice Created', `Invoice ${inv.invoice_number} created from this quotation!`, [
-        { text: 'View Invoice', onPress: () => navigation.navigate('Invoices', { screen: 'InvoiceDetail', params: { id: inv.id } }) },
+        { text: 'View Invoice', onPress: () => navigation.navigate('More', { screen: 'Invoices', params: { screen: 'InvoiceDetail', params: { id: inv.id } } }) },
         { text: 'OK' },
       ]);
       load();

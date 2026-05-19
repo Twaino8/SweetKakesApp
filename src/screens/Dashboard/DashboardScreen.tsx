@@ -65,10 +65,10 @@ export default function DashboardScreen({ navigation }: any) {
       {/* Quick Actions */}
       <Text style={styles.sectionTitle}>Quick Actions</Text>
       <View style={styles.actionsRow}>
-        <QuickAction icon="plus-circle" label="New Order" onPress={() => navigation.navigate('Orders', { screen: 'OrderForm' })} color="#be185d" />
-        <QuickAction icon="file-document" label="Invoice" onPress={() => navigation.navigate('Invoices', { screen: 'InvoiceForm' })} color="#3B82F6" />
-        <QuickAction icon="file-question" label="Quote" onPress={() => navigation.navigate('Quotations', { screen: 'QuotationForm' })} color="#8B5CF6" />
-        <QuickAction icon="calculator" label="Pricing" onPress={() => navigation.navigate('Calculator')} color="#10B981" />
+        <QuickAction icon="plus-circle" label="New Order" onPress={() => navigation.navigate('Orders', { screen: 'OrderForm', params: {} })} color="#be185d" />
+        <QuickAction icon="file-document" label="Invoice" onPress={() => navigation.navigate('More', { screen: 'Invoices', params: { screen: 'InvoiceForm', params: {} } })} color="#3B82F6" />
+        <QuickAction icon="file-question" label="Quote" onPress={() => navigation.navigate('More', { screen: 'Quotations', params: { screen: 'QuotationForm', params: {} } })} color="#8B5CF6" />
+        <QuickAction icon="calculator" label="Pricing" onPress={() => navigation.navigate('More', { screen: 'Calculator' })} color="#10B981" />
       </View>
 
       {/* Today's Orders */}

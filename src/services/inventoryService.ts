@@ -55,13 +55,9 @@ export async function updateStock(id: string, newQuantity: number): Promise<void
 }
 
 export async function getLowStockIngredients(): Promise<Ingredient[]> {
-  const { data, error } = await supabase
-    .from('ingredients')
-    .select('*')
-    .filter('quantity_in_stock', 'lte', supabase.rpc as any)
-    .order('name');
-  // Fallback: fetch all and filter client-side
-  const { data: all, error: e2 } = await supabase.from('ingredients').select('*');
-  if (e2) return [];
-  return (all as Ingredient[]).filter((i) => i.quantity_in_stock <= i.reorder_level);
+  const { data, error } = await supabase.from('ingredients').select('*');
+  if (error) return [];
+  return (data as Ingredient[]).filter(
+    (i) => i.reorder_level > 0 && i.quantity_in_stock <= i.reorder_level,
+  );
 }

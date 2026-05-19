@@ -60,7 +60,7 @@ export default function CustomerDetailScreen({ route, navigation }: any) {
         <Text style={styles.emptyText}>No orders yet</Text>
       ) : (
         orders.map((order) => (
-          <TouchableOpacity key={order.id} style={styles.orderCard} onPress={() => navigation.navigate('Orders', { screen: 'OrderDetail', params: { id: order.id } })}>
+          <TouchableOpacity key={order.id} style={styles.orderCard} onPress={() => navigation.navigate('Orders', { screen: 'OrderDetail', params: { id: order.id } } as any)}>
             <View style={styles.orderRow}>
               <View>
                 <Text style={styles.orderNum}>{order.order_number}</Text>
