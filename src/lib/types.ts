@@ -50,6 +50,47 @@ export interface Settings extends SyncRow {
   gct_pct: number
   day_hours: number
   delivery_zones: DeliveryZone[]
+  overhead: OverheadItem[]
+  gas_cylinder_price: number
+  gas_cylinder_lb: number
+  gas_lb_per_hour: number
+}
+
+export interface OverheadItem {
+  name: string
+  pct: number
+}
+
+/** Anything she buys: ingredients (costed with a buffer) and packaging (costed at plain price). */
+export interface Ingredient extends SyncRow {
+  kind: 'ingredient' | 'packaging'
+  name: string
+  pack_price: number
+  pack_qty: number | null
+  unit: string | null
+  markup_pct: number
+  store: string | null
+  notes: string | null
+  needs_check: boolean
+}
+
+export interface CostLine {
+  ingredient_id: string
+  qty: number
+}
+
+/** A costing worksheet for one cake or batch. */
+export interface Costing extends SyncRow {
+  name: string
+  product_id: string | null
+  size: string | null
+  recipe_id: string | null
+  lines: CostLine[]
+  packaging: CostLine[]
+  bake_hours: number
+  labour_hours: number
+  selling_price: number | null
+  notes: string | null
 }
 
 export interface Customer extends SyncRow {

@@ -5,7 +5,8 @@ import { Icon } from '../components/Icon'
 import { PaymentSheet } from '../components/PaymentSheet'
 import { db } from '../lib/db'
 import { dayKey, fromLocalInput, hours, jmd, toLocalInput } from '../lib/format'
-import { useSettings } from '../lib/hooks'
+import { useCostings, useIngredients, useSettings } from '../lib/hooks'
+import { costIt, roundPrice } from '../lib/costing'
 import { loadOrderBundle, newOrderNo, save, summarize, uid } from '../lib/repo'
 import type { Customer, Handover, Order, OrderItem, Product } from '../lib/types'
 
@@ -102,6 +103,28 @@ export function OrderForm() {
   const feeNum = handover === 'pickup' ? 0 : Number(fee.replace(/[^0-9.]/g, '')) || 0
   const draftOrder = { price: priceNum, delivery_fee: feeNum, deposit_pct: settings.deposit_pct } as Order
   const sum = summarize(draftOrder, items as OrderItem[], [], settings)
+
+  // Suggested price from her costing worksheets: match each item by product, preferring the same size
+  const costings = useCostings()
+  const ingredients = useIngredients()
+  const suggestion = (() => {
+    if (!costings || !ingredients || !items.length) return null
+    let price = 0
+    let cost = 0
+    const missing: string[] = []
+    for (const it of items) {
+      const forProduct = costings.filter((c) => c.product_id && c.product_id === it.product_id)
+      const c = forProduct.find((x) => (x.size ?? '') === (it.size ?? '')) ?? (forProduct.length === 1 && !forProduct[0].size ? forProduct[0] : undefined)
+      if (!c) {
+        missing.push(`${it.name}${it.size ? ` ${it.size}` : ''}`)
+        continue
+      }
+      const b = costIt(c, ingredients.byId, settings)
+      price += b.price * it.quantity
+      cost += b.cbp * it.quantity
+    }
+    return { price, cost, missing, any: price > 0 }
+  })()
   const capMin = (settings.day_hours || 8) * 60
   const free = capMin - (dayLoad ?? 0) - sum.workMinutes
 
@@ -290,7 +313,22 @@ export function OrderForm() {
           <div className="field">
             <label htmlFor="price">Your price for the items (J$)</label>
             <input id="price" className="input" inputMode="numeric" value={price} onChange={(e) => setPrice(e.target.value)} style={{ fontSize: 24, fontWeight: 700, borderColor: 'var(--gold)', borderWidth: 2 }} placeholder="0" />
-            <span className="small muted">Ingredient costing and a suggested price arrive with recipes in phase 2.</span>
+            {suggestion?.any ? (
+              <div className="small" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <span>
+                  Suggested from costing: <strong>{jmd(roundPrice(suggestion.price))}</strong> <span className="muted">(costs {jmd(suggestion.cost)})</span>
+                </span>
+                <button type="button" className="btn" style={{ minHeight: 44, alignSelf: 'flex-start' }} onClick={() => setPrice(String(roundPrice(suggestion.price)))}>
+                  Use suggested price
+                </button>
+                {priceNum > 0 && priceNum < suggestion.cost && <span className="owing">This price is {jmd(suggestion.cost - priceNum)} below cost.</span>}
+                {suggestion.missing.length > 0 && <span className="muted">No costing yet for: {suggestion.missing.join(', ')}</span>}
+              </div>
+            ) : items.length ? (
+              <span className="small muted">
+                No costing for {items.length > 1 ? 'these items' : 'this item'} yet. <Link to="/costing/new">Create one</Link> to get a suggested price.
+              </span>
+            ) : null}
           </div>
           <div className="total-box">
             {sum.gct > 0 && (

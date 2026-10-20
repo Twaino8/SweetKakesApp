@@ -6,6 +6,7 @@ import { useSession } from './lib/hooks'
 import { ensureStarterData } from './lib/repo'
 import { startSyncLoop, syncNow } from './lib/sync'
 import { Calendar } from './pages/Calendar'
+import { Costing, CostingEdit } from './pages/Costing'
 import { CustomerView, Customers, More } from './pages/Customers'
 import { Money } from './pages/Money'
 import { OrderForm } from './pages/OrderForm'
@@ -60,6 +61,9 @@ export default function App() {
             <Route path="recipes/new" element={<RecipeEdit />} />
             <Route path="recipes/:id" element={<RecipeView />} />
             <Route path="recipes/:id/edit" element={<RecipeEdit />} />
+            <Route path="costing" element={<Costing />} />
+            <Route path="costing/new" element={<CostingEdit />} />
+            <Route path="costing/:id" element={<CostingEdit />} />
             <Route path="customers" element={<Customers />} />
             <Route path="customers/:id" element={<CustomerView />} />
             <Route path="settings" element={<Settings />} />

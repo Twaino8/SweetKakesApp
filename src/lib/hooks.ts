@@ -5,7 +5,7 @@ import { db } from './db'
 import { DEFAULT_SETTINGS } from './repo'
 import { supabase } from './supabase'
 import { subscribeSync, type SyncState } from './sync'
-import type { Customer, Order, OrderItem, Payment, Settings } from './types'
+import type { Costing, Customer, Ingredient, Order, OrderItem, Payment, Settings } from './types'
 
 export function useSession() {
   const [session, setSession] = useState<Session | null | undefined>(undefined)
@@ -25,7 +25,8 @@ export function useSyncState() {
 
 export function useSettings(): Settings {
   const row = useLiveQuery(() => db.settings.toCollection().first(), [])
-  return (row ?? { id: '', updated_at: '', deleted: false, ...DEFAULT_SETTINGS }) as Settings
+  // Fill in any setting this device has not received yet with its default
+  return { id: '', updated_at: '', deleted: false, ...DEFAULT_SETTINGS, ...(row ?? {}) } as Settings
 }
 
 export interface OrderView {
@@ -69,4 +70,17 @@ export function orderTitle(items: OrderItem[]) {
   const first = items[0]
   const head = `${first.name}${first.size ? ` ${first.size}` : ''}${first.quantity > 1 ? ` × ${first.quantity}` : ''}`
   return items.length > 1 ? `${head} + ${items.length - 1} more` : head
+}
+
+/** Every live ingredient and packaging item, by id. */
+export function useIngredients() {
+  return useLiveQuery(async () => {
+    const all = (await db.ingredients.toArray()).filter((i) => !i.deleted)
+    all.sort((a, b) => a.name.localeCompare(b.name))
+    return { list: all, byId: new Map(all.map((i) => [i.id, i] as [string, Ingredient])) }
+  }, [])
+}
+
+export function useCostings() {
+  return useLiveQuery(async () => (await db.costings.toArray()).filter((c) => !c.deleted).sort((a, b) => a.name.localeCompare(b.name)) as Costing[], [])
 }

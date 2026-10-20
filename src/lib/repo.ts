@@ -43,6 +43,17 @@ export const DEFAULT_SETTINGS: Omit<Settings, 'id' | 'updated_at' | 'deleted'> =
     { id: 'kingston', name: 'Kingston', min: 500, max: 700 },
     { id: 'outside', name: 'Outside Kingston (Portmore, Spanish Town)', min: 800, max: 900 },
   ],
+  overhead: [
+    { name: 'Depreciation', pct: 10 },
+    { name: 'Electricity', pct: 10 },
+    { name: 'Water', pct: 12 },
+    { name: 'Rent', pct: 1 },
+    { name: 'Traveling', pct: 20 },
+    { name: 'Consultation', pct: 30 },
+  ],
+  gas_cylinder_price: 5500,
+  gas_cylinder_lb: 30,
+  gas_lb_per_hour: 0.4,
 }
 
 export async function currentUserId() {

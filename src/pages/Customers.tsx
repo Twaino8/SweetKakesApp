@@ -112,6 +112,7 @@ export function CustomerView() {
 export function More() {
   const links = [
     { to: '/recipes', label: 'Recipes', icon: 'recipes' },
+    { to: '/costing', label: 'Costing', icon: 'costing' },
     { to: '/customers', label: 'Customers', icon: 'customers' },
     { to: '/settings', label: 'Settings', icon: 'settings' },
   ]

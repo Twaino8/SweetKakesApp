@@ -57,7 +57,7 @@ export function Settings() {
 
   if (!s) return null
   const set = <K extends keyof S>(k: K, v: S[K]) => setS({ ...s, [k]: v })
-  const num = (v: string) => Number(v.replace(/[^0-9.]/g, '')) || 0
+  const num = (v: string) => Number(String(v).replace(/[^0-9.]/g, '')) || 0
   const setZone = (i: number, ch: Partial<DeliveryZone>) => set('delivery_zones', s.delivery_zones.map((z, j) => (j === i ? { ...z, ...ch } : z)))
 
   return (
@@ -93,22 +93,22 @@ export function Settings() {
         <div className="two">
           <div className="field">
             <label htmlFor="dep">Deposit (%)</label>
-            <input id="dep" className="input" inputMode="numeric" value={s.deposit_pct} onChange={(e) => set('deposit_pct', num(e.target.value))} />
+            <input id="dep" className="input" inputMode="numeric" value={s.deposit_pct} onChange={(e) => set('deposit_pct', e.target.value as unknown as number)} />
           </div>
           <div className="field">
             <label htmlFor="hrs">Working hours per day</label>
-            <input id="hrs" className="input" inputMode="numeric" value={s.day_hours} onChange={(e) => set('day_hours', num(e.target.value))} />
+            <input id="hrs" className="input" inputMode="numeric" value={s.day_hours} onChange={(e) => set('day_hours', e.target.value as unknown as number)} />
           </div>
           <div className="field">
             <label htmlFor="lab">Labour rate (J$ per hour)</label>
-            <input id="lab" className="input" inputMode="numeric" value={s.labour_rate} onChange={(e) => set('labour_rate', num(e.target.value))} />
+            <input id="lab" className="input" inputMode="numeric" value={s.labour_rate} onChange={(e) => set('labour_rate', e.target.value as unknown as number)} />
           </div>
           <div className="field">
             <label htmlFor="mar">Profit margin (%)</label>
-            <input id="mar" className="input" inputMode="numeric" value={s.margin_pct} onChange={(e) => set('margin_pct', num(e.target.value))} />
+            <input id="mar" className="input" inputMode="numeric" value={s.margin_pct} onChange={(e) => set('margin_pct', e.target.value as unknown as number)} />
           </div>
         </div>
-        <p className="small muted" style={{ margin: 0 }}>Change labour rate and margin any time, for example for the Christmas season. They drive suggested prices once recipe costing arrives.</p>
+        <p className="small muted" style={{ margin: 0 }}>Change labour rate and margin any time, for example for the Christmas season. They drive the suggested prices on the Costing screen.</p>
         <label className="row" style={{ minHeight: 52, cursor: 'pointer' }}>
           <input type="checkbox" checked={s.gct_enabled} onChange={(e) => set('gct_enabled', e.target.checked)} style={{ width: 26, height: 26 }} />
           <span>Charge GCT (turn on once registered)</span>
@@ -116,9 +116,56 @@ export function Settings() {
         {s.gct_enabled && (
           <div className="field">
             <label htmlFor="gct">GCT rate (%)</label>
-            <input id="gct" className="input" inputMode="numeric" value={s.gct_pct} onChange={(e) => set('gct_pct', num(e.target.value))} />
+            <input id="gct" className="input" inputMode="numeric" value={s.gct_pct} onChange={(e) => set('gct_pct', e.target.value as unknown as number)} />
           </div>
         )}
+      </section>
+
+      <section className="card stack">
+        <h2 className="section-title">Costing</h2>
+        <p className="small muted" style={{ margin: 0 }}>
+          Overhead is added as a percentage of the ingredient cost. Total now: <strong>{s.overhead.reduce((t, o) => t + (Number(o.pct) || 0), 0)}%</strong>.
+        </p>
+        {s.overhead.map((o, i) => (
+          <div key={i} className="row" style={{ gap: 10 }}>
+            <input
+              className="input"
+              aria-label="Overhead name"
+              value={o.name}
+              onChange={(e) => set('overhead', s.overhead.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))}
+              style={{ flex: 1 }}
+            />
+            <input
+              className="input"
+              aria-label={`${o.name} percent`}
+              inputMode="decimal"
+              value={o.pct}
+              onChange={(e) => set('overhead', s.overhead.map((x, j) => (j === i ? { ...x, pct: e.target.value as unknown as number } : x)))}
+              style={{ width: 90, textAlign: 'right' }}
+            />
+            <span className="muted">%</span>
+            <button className="icon-btn" aria-label={`Remove ${o.name}`} onClick={() => set('overhead', s.overhead.filter((_, j) => j !== i))}>
+              <Icon name="trash" size={18} />
+            </button>
+          </div>
+        ))}
+        <button className="btn" style={{ alignSelf: 'flex-start' }} onClick={() => set('overhead', [...s.overhead, { name: 'New cost', pct: 0 }])}>
+          + Add overhead
+        </button>
+        <div className="two">
+          <div className="field">
+            <label htmlFor="gcp">Gas cylinder price (J$)</label>
+            <input id="gcp" className="input" inputMode="numeric" value={s.gas_cylinder_price} onChange={(e) => set('gas_cylinder_price', e.target.value as unknown as number)} />
+          </div>
+          <div className="field">
+            <label htmlFor="gcl">Cylinder size (lb)</label>
+            <input id="gcl" className="input" inputMode="numeric" value={s.gas_cylinder_lb} onChange={(e) => set('gas_cylinder_lb', e.target.value as unknown as number)} />
+          </div>
+          <div className="field">
+            <label htmlFor="glh">Gas used per oven hour (lb)</label>
+            <input id="glh" className="input" inputMode="decimal" value={s.gas_lb_per_hour} onChange={(e) => set('gas_lb_per_hour', e.target.value as unknown as number)} />
+          </div>
+        </div>
       </section>
 
       <section className="card stack">
@@ -129,11 +176,11 @@ export function Settings() {
             <div className="two">
               <div className="field">
                 <label htmlFor={`zmin${i}`}>From (J$)</label>
-                <input id={`zmin${i}`} className="input" inputMode="numeric" value={z.min} onChange={(e) => setZone(i, { min: num(e.target.value) })} />
+                <input id={`zmin${i}`} className="input" inputMode="numeric" value={z.min} onChange={(e) => setZone(i, { min: e.target.value as unknown as number })} />
               </div>
               <div className="field">
                 <label htmlFor={`zmax${i}`}>To (J$)</label>
-                <input id={`zmax${i}`} className="input" inputMode="numeric" value={z.max} onChange={(e) => setZone(i, { max: num(e.target.value) })} />
+                <input id={`zmax${i}`} className="input" inputMode="numeric" value={z.max} onChange={(e) => setZone(i, { max: e.target.value as unknown as number })} />
               </div>
             </div>
           </div>
@@ -143,7 +190,20 @@ export function Settings() {
       <button
         className="btn btn-primary btn-big"
         onClick={async () => {
-          await save<S>('settings', s)
+          const n = (v: unknown) => num(String(v ?? ''))
+          await save<S>('settings', {
+            ...s,
+            deposit_pct: n(s.deposit_pct),
+            day_hours: n(s.day_hours),
+            labour_rate: n(s.labour_rate),
+            margin_pct: n(s.margin_pct),
+            gct_pct: n(s.gct_pct),
+            gas_cylinder_price: n(s.gas_cylinder_price),
+            gas_cylinder_lb: n(s.gas_cylinder_lb),
+            gas_lb_per_hour: n(s.gas_lb_per_hour),
+            overhead: s.overhead.map((o) => ({ name: o.name.trim() || 'Overhead', pct: n(o.pct) })),
+            delivery_zones: s.delivery_zones.map((z) => ({ ...z, min: n(z.min), max: n(z.max) })),
+          })
           toast({ text: 'Settings saved' })
         }}
       >

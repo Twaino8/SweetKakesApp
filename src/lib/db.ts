@@ -1,7 +1,9 @@
 import Dexie, { type EntityTable } from 'dexie'
 import type {
   CachedPhoto,
+  Costing,
   Customer,
+  Ingredient,
   Order,
   OrderItem,
   OrderPhoto,
@@ -27,6 +29,8 @@ export const db = new Dexie('sweet-kakes') as Dexie & {
   payments: EntityTable<Payment, 'id'>
   order_photos: EntityTable<OrderPhoto, 'id'>
   recipes: EntityTable<Recipe, 'id'>
+  ingredients: EntityTable<Ingredient, 'id'>
+  costings: EntityTable<Costing, 'id'>
   pending_photos: EntityTable<PendingPhoto, 'path'>
   cached_photos: EntityTable<CachedPhoto, 'path'>
   meta: EntityTable<Meta, 'key'>
@@ -46,6 +50,12 @@ db.version(1).stores({
   meta: 'key',
 })
 
+// Phase 2: ingredient prices and costing worksheets
+db.version(2).stores({
+  ingredients: 'id, dirty, name, kind',
+  costings: 'id, dirty, name, product_id',
+})
+
 export const SYNCED_TABLES = [
   'settings',
   'customers',
@@ -55,6 +65,8 @@ export const SYNCED_TABLES = [
   'payments',
   'order_photos',
   'recipes',
+  'ingredients',
+  'costings',
 ] as const
 
 export type SyncedTable = (typeof SYNCED_TABLES)[number]
