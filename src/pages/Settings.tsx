@@ -96,6 +96,10 @@ export function Settings() {
             <input id="dep" className="input" inputMode="numeric" value={s.deposit_pct} onChange={(e) => set('deposit_pct', e.target.value as unknown as number)} />
           </div>
           <div className="field">
+            <label htmlFor="dnote">Deposit terms (on receipts and messages)</label>
+            <input id="dnote" className="input" value={s.deposit_note ?? ''} onChange={(e) => set('deposit_note', e.target.value)} />
+          </div>
+          <div className="field">
             <label htmlFor="hrs">Working hours per day</label>
             <input id="hrs" className="input" inputMode="numeric" value={s.day_hours} onChange={(e) => set('day_hours', e.target.value as unknown as number)} />
           </div>

@@ -44,6 +44,7 @@ export interface Settings extends SyncRow {
   bank_name: string | null
   bank_account_name: string | null
   deposit_pct: number
+  deposit_note: string
   labour_rate: number
   margin_pct: number
   gct_enabled: boolean

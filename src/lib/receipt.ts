@@ -33,7 +33,7 @@ export async function receiptImage(v: OrderView, settings: Settings): Promise<Bl
   }
   lines.push([s.balance ? 'Balance due' : 'Paid in full', s.balance ? jmd(s.balance) : '✓', 'bold'])
 
-  const H = 560 + lines.length * 46 + (settings.phone ? 34 : 0) + (settings.bank_name || settings.bank_account_name ? 34 : 0) + 110
+  const H = 560 + lines.length * 46 + (settings.phone ? 34 : 0) + (settings.bank_name || settings.bank_account_name ? 34 : 0) + (settings.deposit_note ? 34 : 0) + 110
   const c = document.createElement('canvas')
   c.width = W
   c.height = H
@@ -99,6 +99,12 @@ export async function receiptImage(v: OrderView, settings: Settings): Promise<Bl
     g.fillText(settings.phone, W / 2, y)
     y += 34
   }
+  if (settings.deposit_note) {
+    g.font = '600 22px "DM Sans", sans-serif'
+    g.fillStyle = '#9e1742'
+    g.fillText(settings.deposit_note, W / 2, y)
+    y += 34
+  }
   g.font = 'italic 600 24px "Playfair Display", Georgia, serif'
   g.fillStyle = '#8a5a1f'
   g.fillText(settings.tagline ?? '', W / 2, y + 10)
@@ -140,11 +146,12 @@ export function orderSummaryText(v: OrderView, settings: Settings) {
     ...items,
     `${v.order.handover === 'pickup' ? 'Pickup' : 'Delivery'}: ${when}`,
     `Total: ${jmd(s.total)}`,
-    s.paid ? `Paid: ${jmd(s.paid)}` : `Deposit to confirm: ${jmd(s.depositDue)}`,
+    s.paid ? `Paid: ${jmd(s.paid)}` : `Deposit to confirm (${v.order.deposit_pct ?? settings.deposit_pct}%): ${jmd(s.depositDue)}`,
     s.balance ? `Balance: ${jmd(s.balance)}` : 'Paid in full — thank you!',
   ]
   if (s.balance && (settings.bank_name || settings.bank_account_name)) {
     lines.push(`Bank transfer: ${[settings.bank_name, settings.bank_account_name].filter(Boolean).join(', ')}`)
   }
+  if (settings.deposit_note) lines.push(settings.deposit_note)
   return lines.join('\n')
 }

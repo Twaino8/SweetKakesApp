@@ -351,6 +351,7 @@ export function OrderForm() {
               <span>{settings.deposit_pct}% deposit</span>
               <span>{jmd(sum.depositDue)}</span>
             </div>
+            {settings.deposit_note && <div className="small muted" style={{ marginTop: 6 }}>{settings.deposit_note}</div>}
           </div>
           {error && <p className="error" style={{ margin: 0 }}>{error}</p>}
           {editing ? (
@@ -375,6 +376,7 @@ export function OrderForm() {
           orderId={orderId}
           suggested={paySheet.amount}
           kind="deposit"
+          note={settings.deposit_note}
           onClose={() => nav(`/orders/${orderId}`, { replace: true })}
         />
       )}

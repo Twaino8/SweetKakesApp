@@ -33,7 +33,8 @@ export const DEFAULT_SETTINGS: Omit<Settings, 'id' | 'updated_at' | 'deleted'> =
   phone: null,
   bank_name: null,
   bank_account_name: null,
-  deposit_pct: 50,
+  deposit_pct: 60,
+  deposit_note: 'Deposits are non-refundable.',
   labour_rate: 0,
   margin_pct: 0,
   gct_enabled: false,
@@ -82,7 +83,7 @@ export async function ensureStarterData() {
     await db.settings.put({ id: userId, ...DEFAULT_SETTINGS, deleted: false, updated_at: OLD, dirty: 1 })
   }
   if ((await db.products.count()) === 0) {
-    const cake = ['6"', '8"', '9"', '10"']
+    const cake = ['6"', '7"', '8"', '9"', '10"']
     const starters: [string, Product['line'], string[]][] = [
       ['Cheesecake', 'menu', cake],
       ['Fruit cake', 'seasonal', cake],
@@ -126,7 +127,7 @@ export function summarize(order: Order, items: OrderItem[], payments: Payment[],
   const gct = settings?.gct_enabled ? Math.round((order.price * (settings.gct_pct ?? 0)) / 100) : 0
   const total = (order.price || 0) + gct + (order.delivery_fee || 0)
   const paid = payments.filter(live).reduce((s, p) => s + Number(p.amount || 0), 0)
-  const depositDue = Math.round((total * (order.deposit_pct ?? 50)) / 100)
+  const depositDue = Math.round((total * (order.deposit_pct ?? 60)) / 100)
   const workMinutes = items.filter(live).reduce((s, i) => s + (i.work_minutes || 0) * Math.max(1, itemsWorkUnits(i)), 0)
   return { total, gct, paid, balance: Math.max(0, total - paid), depositDue, workMinutes }
 }

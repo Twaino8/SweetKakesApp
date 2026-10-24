@@ -269,6 +269,7 @@ function OrderDetail({ v }: { v: OrderView }) {
         <PaymentSheet
           orderId={o.id}
           kind={sheet}
+          note={settings.deposit_note}
           suggested={sheet === 'deposit' ? s.depositDue : s.balance}
           onClose={async (saved) => {
             setSheet(null)

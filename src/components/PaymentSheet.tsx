@@ -8,7 +8,9 @@ export function PaymentSheet({
   suggested,
   kind,
   onClose,
+  note,
 }: {
+  note?: string
   orderId: string
   suggested: number
   kind: Payment['kind']
@@ -34,6 +36,7 @@ export function PaymentSheet({
           <label htmlFor="amt">Amount (J$)</label>
           <input id="amt" className="input" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} style={{ fontSize: 26, fontWeight: 700 }} />
           {suggested > 0 && <span className="small muted">Suggested: {jmd(suggested)}</span>}
+          {kind === 'deposit' && note && <span className="small owing">{note}</span>}
         </div>
         <div className="field">
           <span className="flabel">Paid by</span>
